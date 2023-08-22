@@ -1,7 +1,6 @@
-#include "ble_utils.h"
-
 #include "nimble/ble.h"
 #include "modlog/modlog.h"
+#include "ble_utils.h"
 
 /**
  * Utility function to log an array of bytes.

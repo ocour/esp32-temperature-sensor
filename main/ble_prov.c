@@ -1,18 +1,15 @@
-#include "ble_prov.h"
-#include "ble_utils.h"
-#include "ble_prov_gatt.h"
-
-#include "esp_log.h"
-
-// BLE
 #include "nimble/ble.h"
 #include "modlog/modlog.h"
+#include "esp_log.h"
 #include "nimble/nimble_port.h"
 #include "nimble/nimble_port_freertos.h"
 #include "host/util/util.h"
 #include "host/ble_hs_pvcy.h"
+#include "ble_prov.h"
+#include "ble_utils.h"
+#include "ble_prov_gatt.h"
 
-static const char *device_name = (DEVICE_NAME);
+static const char *device_name = CONFIG_BLE_DEVICE_NAME;
 static uint8_t ble_prov_addr_type = BLE_OWN_ADDR_RANDOM;
 
 /* Stores connection */
@@ -265,7 +262,7 @@ static int ble_prov_gap_event(struct ble_gap_event *event, void *arg)
             break;
 
         case BLE_GAP_EVENT_SUBSCRIBE:
-            MODLOG_DFLT(ERROR, "Subscribe event; Should not be here.");
+            MODLOG_DFLT(INFO, "Subscribe event; Should not be here.");
             break;
 
         case BLE_GAP_EVENT_MTU:

@@ -1,17 +1,15 @@
-#ifndef H_BLE_PROV_
-#define H_BLE_PROV_
+#pragma once
 
 #include "stdint.h"
-
-// BLE
 #include "host/ble_hs.h"
-
-#define TAG             "BLE_PROV"
-#define DEVICE_NAME     "DEVICE_NAME"
+#include "main.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/// TODO: MAKE DEVICE NAME CONFIG BASED
+#define DEVICE_NAME     "ESP32"
 
 struct ble_hs_cfg;
 
@@ -20,6 +18,4 @@ void stop_ble();
 
 #ifdef __cplusplus
 }
-#endif
-
 #endif

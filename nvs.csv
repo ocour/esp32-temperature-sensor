@@ -1,0 +1,5 @@
+key,type,encoding,value
+storage,namespace,,
+server_cert,file,binary,./main/certs/AmazonCA1.pem
+client_cert,file,binary,./main/certs/client.pem.crt
+client_key,file,binary,./main/certs/client.pem.key

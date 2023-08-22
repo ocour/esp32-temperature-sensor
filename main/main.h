@@ -1,5 +1,4 @@
-#ifndef H_MAIN_
-#define H_MAIN_
+#pragma once
 
 #include <stdio.h>
 
@@ -7,10 +6,8 @@
 extern "C" {
 #endif
 
-
+#define TAG "BLE_PROV"
 
 #ifdef __cplusplus
 }
-#endif
-
 #endif

@@ -1,10 +1,8 @@
-#ifndef H_BLE_UTILS_
-#define H_BLE_UTILS_
+#pragma once
 
 #include "stdint.h"
-#include "main.h"
-
 #include "host/ble_hs.h"
+#include "main.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -24,6 +22,4 @@ void bleprph_print_conn_desc(struct ble_gap_conn_desc *desc);
 
 #ifdef __cplusplus
 }
-#endif
-
 #endif

@@ -1,0 +1,61 @@
+menu "CUSTOM CONFIG"
+
+    config BLE_DEVICE_NAME
+        string "ble device name"
+        help
+            name of device used when ble advertising
+
+    config MQTT_ENDPOINT
+        string "broker url"
+        help
+            end point of mqtt
+    
+    config MQTT_PORT
+        string "port"
+        default "8883"
+        help
+            Port used to connect to endpoint. default is 8883.
+
+    config AWS_TEMPLATE_NAME
+        string "aws template name"
+        help
+            template name of the fleet provisioning template for which the thing will be registered
+
+    config MQTT_CLAIM_CLIENT_ID
+        string "Claim ClientId"
+        help
+            ClientId for used when connecting to register thing (!NOT THE THINGNAME THAT WILL BE REGISTERED!)
+    
+    config WIFI_MAXIMUM_RETRY
+        int "Maximum retry"
+        default 5
+        help
+            Set the Maximum retry to avoid station reconnecting to the AP unlimited when the AP is really inexistent.
+
+    choice ESP_WIFI_SCAN_AUTH_MODE_THRESHOLD
+        prompt "WiFi Scan auth mode threshold"
+        default ESP_WIFI_AUTH_WPA2_PSK
+        help
+            The weakest authmode to accept in the scan mode.
+            This value defaults to ESP_WIFI_AUTH_WPA2_PSK incase password is present and ESP_WIFI_AUTH_OPEN is used.
+            Please select ESP_WIFI_AUTH_WEP/ESP_WIFI_AUTH_WPA_PSK incase AP is operating in WEP/WPA mode.
+
+        config ESP_WIFI_AUTH_OPEN
+            bool "OPEN"
+        config ESP_WIFI_AUTH_WEP
+            bool "WEP"
+        config ESP_WIFI_AUTH_WPA_PSK
+            bool "WPA PSK"
+        config ESP_WIFI_AUTH_WPA2_PSK
+            bool "WPA2 PSK"
+        config ESP_WIFI_AUTH_WPA_WPA2_PSK
+            bool "WPA/WPA2 PSK"
+        config ESP_WIFI_AUTH_WPA3_PSK
+            bool "WPA3 PSK"
+        config ESP_WIFI_AUTH_WPA2_WPA3_PSK
+            bool "WPA2/WPA3 PSK"
+        config ESP_WIFI_AUTH_WAPI_PSK
+            bool "WAPI PSK"
+    endchoice
+
+endmenu

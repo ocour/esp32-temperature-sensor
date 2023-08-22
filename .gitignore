@@ -1,4 +1,11 @@
 build/
 sdkconfig
 sdkconfig.old
+
 .devcontainer
+keys/
+nvs.bin
+flashed.bin
+main/certs/AmazonCA1.pem
+main/certs/client.pem.crt
+main/certs/client.pem.key
