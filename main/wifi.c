@@ -12,6 +12,8 @@
 #include "ble_prov.h"
 #include "my_nvs.h"
 
+#include "ble_prov_gatt.h"
+
 /* FreeRTOS event group to signal when we are connected*/
 static EventGroupHandle_t s_wifi_event_group;
 
@@ -130,6 +132,7 @@ void wifi_test_prov_data(struct prov_data *pdata)
         ret = nvs_set_prov_data(pdata);
         if(ret != ESP_OK) {
             printf("Error (%s) while setting wifi data!\n", esp_err_to_name(ret));
+            return;
         }
         ESP_LOGI(TAG, "Saving of prov data succeeded.");
         ESP_LOGI(TAG, "Restarting...");
@@ -141,4 +144,19 @@ void wifi_test_prov_data(struct prov_data *pdata)
         ESP_LOGI(TAG, "Restarting...");
         esp_restart();
     }
+}
+
+void wifi_task(void* arg)
+{
+    ESP_LOGI(TAG, "Wifi task created!");
+    // Get pdata from passes parameter
+    struct prov_data *pdata = (struct prov_data *)arg;
+
+    // wait for 1 second
+    vTaskDelay(1000 / portTICK_PERIOD_MS);
+    wifi_test_prov_data(pdata);
+    // Delete this task after, not really needed as above function will 
+    // always (almost) end in reboot
+    ESP_LOGI(TAG, "Error occurred while testing wifi data.");
+    vTaskDelete(NULL);
 }

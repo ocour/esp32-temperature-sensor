@@ -34,6 +34,35 @@ esp_err_t nvs_get_wifi_data(uint8_t *ssid_output, uint8_t *pwd_output)
     return ESP_OK;
 }
 
+esp_err_t nvs_erase_wifi_data()
+{
+    nvs_handle_t nvs_handle;
+    esp_err_t err;
+
+    err = nvs_open_and_print(&nvs_handle, NVS_NAMESPACE, NVS_READWRITE);
+    if(err != ESP_OK) {
+        return err;
+    }
+
+    err = nvs_erase_key(nvs_handle, NVS_KEY_WIFI_SSID);
+    if(err != ESP_OK) {
+        printf("Error (%s) erasing %s key!\n", esp_err_to_name(err), NVS_KEY_WIFI_SSID);
+        nvs_close(nvs_handle);
+        return err;
+    }
+
+    err = nvs_erase_key(nvs_handle, NVS_KEY_WIFI_PWD);
+    if(err != ESP_OK) {
+        printf("Error (%s) erasing %s key!\n", esp_err_to_name(err), NVS_KEY_WIFI_PWD);
+        nvs_close(nvs_handle);
+        return err;
+    }
+
+    // CLOSE NVS HANDLE
+    nvs_close(nvs_handle);
+    return ESP_OK;
+}
+
 esp_err_t nvs_set_prov_data(struct prov_data *pdata)
 {
     nvs_handle_t nvs_handle;

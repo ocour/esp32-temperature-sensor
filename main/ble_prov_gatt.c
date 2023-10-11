@@ -3,9 +3,12 @@
 #include "modlog/modlog.h"
 #include "host/ble_hs.h"
 #include "host/ble_uuid.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 #include "services/gap/ble_svc_gap.h"
 #include "services/gatt/ble_svc_gatt.h"
 #include "ble_prov_gatt.h"
+#include "ble_prov.h"
 #include "wifi.h"
 
 /**
@@ -26,9 +29,7 @@ static int gatt_svr_chr_write(struct os_mbuf *om, uint16_t min_len, uint16_t max
 
 /* Sensor provisioning service */
 /* c4b21f63-e59e-44af-a637-5c05f58ac6a3 */
-static const ble_uuid128_t gatt_svr_svc_prov_uuid =
-    BLE_UUID128_INIT(0xa3, 0xc6, 0x8a, 0xf5, 0x05, 0x5c, 0x37, 0xa6,
-                     0xaf, 0x44, 0x9e, 0xe5, 0x63, 0x1f, 0xb2, 0xc4);
+static const ble_uuid128_t gatt_svr_svc_prov_uuid = PROV_SENSOR_SERVICE;
 
 /* wifi ssid characteristic */
 /* c4b21f63-e59e-44af-a637-5c05f58ac6a4 */
@@ -164,16 +165,24 @@ static int gatt_svr_prov_access_cb(uint16_t conn_handle, uint16_t attr_handle,
         if(cpl > 0) {
             // Save provisioning data and attempt wifi connection
 
+            /// TODO: REMOVE PRINT
+            printf("COMPLETE?: %d\n", cpl);
+            printf("SSID: %s\n", pdata.ssid);
+            printf("PWD: %s\n", pdata.pwd);
+            printf("THING: %s\n", pdata.aws_thing);
+
             // Test wifi data if relevant fields are not empty
-            if(pdata.ssid[0] != '\0' && pdata.aws_uuid[0] != '\0' && pdata.aws_thing[0] != '\0') {
-                wifi_test_prov_data(&pdata);
+            if(pdata.ssid[0] != '\0' && pdata.aws_thing[0] != '\0') {
+                // Test wifi credentials, a new task will be create for this as 
+                // we want this callback function to return
+                xTaskCreate(wifi_task, "wifi_task", 4096, &pdata, 10, NULL);
             } else {
-                /// TODO: INFORM USER THAT SOME REQUIRED FIELD ARE EMPTY
+                /// TODO: INFORM USER THAT SOME REQUIRED FIELD ARE EMPTY, 
+                /// can be achieved using for example a ble notification
             }
         }
 
         return rc;
-
     } else {
         MODLOG_DFLT(INFO, "Unknown characteristic");
         assert(0);

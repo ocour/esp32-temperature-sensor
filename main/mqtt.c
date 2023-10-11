@@ -259,22 +259,24 @@ static void claim_mqtt_event_handler(void *handler_args, esp_event_base_t base, 
         // PUBLISH CreateKeysAndCertificate MQTT API with empty payload
         msg_id = esp_mqtt_client_publish(client, TOPIC_CREATE_KEYS_AND_CERT, "{}", 0, 0, 0);
         ESP_LOGI(TAG, "Sent publish successful to %s topic, msg_id=%d", TOPIC_CREATE_KEYS_AND_CERT, msg_id);
-
         break;
+        
     case MQTT_EVENT_DISCONNECTED:
         ESP_LOGI(TAG, "MQTT_EVENT_DISCONNECTED");
         break;
 
     case MQTT_EVENT_SUBSCRIBED:
         ESP_LOGI(TAG, "MQTT_EVENT_SUBSCRIBED, msg_id=%d", event->msg_id);
-
         break;
+
     case MQTT_EVENT_UNSUBSCRIBED:
         ESP_LOGI(TAG, "MQTT_EVENT_UNSUBSCRIBED, msg_id=%d", event->msg_id);
         break;
+
     case MQTT_EVENT_PUBLISHED:
         ESP_LOGI(TAG, "MQTT_EVENT_PUBLISHED, msg_id=%d", event->msg_id);
         break;
+
     case MQTT_EVENT_DATA:
         ESP_LOGI(TAG, "MQTT_EVENT_DATA");
 
@@ -289,7 +291,6 @@ static void claim_mqtt_event_handler(void *handler_args, esp_event_base_t base, 
             json_buffer_len = strlen(json_buffer);
             // When response has been gathered parse it
             if(json_buffer_len >= event->total_data_len) {
-
                 // parse response
                 ret = parse_create_keys_and_certificates_response(
                     json_buffer, certificate_id, certificate_pem, private_key, certificate_ownership_token

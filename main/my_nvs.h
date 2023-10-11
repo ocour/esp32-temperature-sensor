@@ -35,6 +35,11 @@ extern "C" {
 */
 esp_err_t nvs_get_wifi_data(uint8_t *ssid_output, uint8_t *pwd_output);
 
+
+/// @brief Erases wifi data from nvs storage
+/// @return ESP_OK on success, ESP_FAIL on failure
+esp_err_t nvs_erase_wifi_data();
+
 /**
  * Saves provisioning data to nvs 
  * @return  ESP_OK on success,

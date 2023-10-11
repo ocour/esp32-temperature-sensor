@@ -45,6 +45,8 @@ esp_err_t wifi_init_sta(uint8_t *ssid, uint8_t *pwd);
 */
 void wifi_test_prov_data(struct prov_data *pdata);
 
+void wifi_task(void* arg);
+
 #ifdef __cplusplus
 }
 #endif

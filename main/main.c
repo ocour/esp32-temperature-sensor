@@ -1,6 +1,7 @@
 #include "nvs_flash.h"
 #include "freertos/FreeRTOSConfig.h"
 #include "nimble/nimble_port_freertos.h"
+#include "esp_system.h"
 #include "main.h"
 #include "ble_prov.h"
 #include "wifi.h"
@@ -21,7 +22,6 @@ void app_main(void)
     }
     ESP_ERROR_CHECK(ret);
 
-
     ret = nvs_get_wifi_data(ssid, pwd);
     if(ret == ESP_FAIL) {
         printf("Error while getting wifi data from nvs!\n");
@@ -34,19 +34,20 @@ void app_main(void)
         printf("Starting ble.\n");
         start_ble();
 
-
         return;
     }
 
     printf("Wifi has been provisioned.\n");
 
-    ret = wifi_init_sta(ssid, pwd);
+    /// TODO: REMOVE COMMENT
+    ret = ESP_FAIL; /* wifi_init_sta(ssid, pwd); */
     if(ret != ESP_OK) {
-        printf("Error while getting connecting to wifi!\n");
-
-        /// TODO: CLEAR WIFI DATA FROM NVS?
-
-        return;
+        printf("Error while connecting to wifi, clearing wifi data!\n");
+        /// CLEAR WIFI DATA FROM NVS
+        ret = nvs_erase_wifi_data();
+        assert(ret == ESP_OK);
+        printf("Wifi data erasure succeeded, restarting...\n");
+        esp_restart();
     }
 
     printf("Wifi successfully connected.\n");
@@ -66,6 +67,4 @@ void app_main(void)
         printf("An error occurred while getting tls certificates.\n");
         return;
     }
-
-    /// TODO: CHANGE QOS 0 TO QOS 2 FOR FLEET PROVISINING?
 }

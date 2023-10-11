@@ -46,9 +46,10 @@ void start_ble()
     ble_hs_cfg.store_status_cb = ble_store_util_status_rr;
 
     // Security
+    ble_hs_cfg.sm_io_cap = BLE_HS_IO_NO_INPUT_OUTPUT;
     /* Man-In-The-Middle protection */
     ble_hs_cfg.sm_mitm = 1;
-    ble_hs_cfg.sm_io_cap = BLE_HS_IO_NO_INPUT_OUTPUT;
+    // Security Manager Secure Connections
     ble_hs_cfg.sm_sc = 1;
 
     // // Enable bonding
@@ -143,6 +144,7 @@ static void ble_prov_advertise()
 {
     struct ble_gap_adv_params adv_params;
     struct ble_hs_adv_fields fields;
+    struct ble_hs_adv_fields scan_rsp_fields;
     int rc;
 
     /*
@@ -172,6 +174,21 @@ static void ble_prov_advertise()
     fields.name = (uint8_t *)device_name;
     fields.name_len = strlen(device_name);
     fields.name_is_complete = 1;
+
+    /// Set scan response data to advertise 128 bit uuid's
+    memset(&scan_rsp_fields, 0, sizeof(scan_rsp_fields));
+
+    scan_rsp_fields.uuids128 = (ble_uuid128_t[]) {
+        PROV_SENSOR_SERVICE
+    };
+    scan_rsp_fields.num_uuids128 = 1;
+    scan_rsp_fields.uuids128_is_complete = 1;
+
+    rc = ble_gap_adv_rsp_set_fields(&scan_rsp_fields);
+    if (rc != 0) {
+        MODLOG_DFLT(ERROR, "error setting scan response advertisement data; rc=%d\n", rc);
+        return;
+    }
 
     rc = ble_gap_adv_set_fields(&fields);
     if (rc != 0) {
@@ -262,7 +279,7 @@ static int ble_prov_gap_event(struct ble_gap_event *event, void *arg)
             break;
 
         case BLE_GAP_EVENT_SUBSCRIBE:
-            MODLOG_DFLT(INFO, "Subscribe event; Should not be here.");
+            MODLOG_DFLT(INFO, "Subscribe event;");
             break;
 
         case BLE_GAP_EVENT_MTU:
