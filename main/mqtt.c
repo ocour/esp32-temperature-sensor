@@ -1,6 +1,7 @@
 #include "mqtt_client.h"
 #include "esp_log.h"
 #include "esp_system.h"
+#include <string.h>
 #include "mqtt.h"
 #include "main.h"
 #include "my_nvs.h"
@@ -148,7 +149,7 @@ static void mqtt_start(esp_event_handler_t event_handler, char *clientId)
     ESP_LOGI(TAG, "[APP] Free memory: %ld bytes", esp_get_free_heap_size());
     esp_mqtt_client_handle_t client = esp_mqtt_client_init(&mqtt_cfg);
     /* The last argument may be used to pass data to the event handler */
-    esp_mqtt_client_register_event(client, ESP_EVENT_ANY_ID, event_handler, NULL);
+    esp_mqtt_client_register_event(client, ESP_EVENT_ANY_ID, event_handler, clientId);
     esp_mqtt_client_start(client);
 }
 
@@ -169,14 +170,18 @@ static void con_mqtt_event_handler(void *handler_args, esp_event_base_t base, in
     esp_mqtt_client_handle_t client = event->client;
     int msg_id;
 
+    char *thingName =  (char *)handler_args;
+    char temperature_topic[1024];
+    snprintf(temperature_topic, 1024, "device/%s/temperature/data", thingName);
+
+
     switch ((esp_mqtt_event_id_t)event_id) {
     case MQTT_EVENT_CONNECTED:
         ESP_LOGI(TAG, "MQTT_EVENT_CONNECTED");
 
-        /// TODO: CHANGE TO SEND TEMPERATURE DATA
-        // PUBLISH TEST
-        msg_id = esp_mqtt_client_publish(client, "example/topic", "{}", 0, 0, 0);
-        ESP_LOGI(TAG, "sent publish successful, msg_id=%d", msg_id);
+        // PUBLISH Temperature data
+        msg_id = esp_mqtt_client_publish(client, temperature_topic, "{ \"temperature\": 31}", 0, 0, 0);
+        ESP_LOGI(TAG, "temperature data published successfully, msg_id=%d", msg_id);
 
         break;
     case MQTT_EVENT_DISCONNECTED:

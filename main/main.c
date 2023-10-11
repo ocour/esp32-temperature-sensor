@@ -40,7 +40,7 @@ void app_main(void)
     printf("Wifi has been provisioned.\n");
 
     /// TODO: REMOVE COMMENT
-    ret = ESP_FAIL; /* wifi_init_sta(ssid, pwd); */
+    ret = /*ESP_FAIL;*/ wifi_init_sta(ssid, pwd);
     if(ret != ESP_OK) {
         printf("Error while connecting to wifi, clearing wifi data!\n");
         /// CLEAR WIFI DATA FROM NVS
