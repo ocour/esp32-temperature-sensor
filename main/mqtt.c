@@ -27,6 +27,9 @@ static char tmp_buf[TMPBUFFER_SIZE];
 // json buffer
 static char json_buffer[CREATE_KEYS_AND_CERT_RESPONSE_SIZE];
 
+// temperature task handle
+TaskHandle_t xHandle = NULL;
+
 static void mqtt_start(esp_event_handler_t event_handler, char *clientId);
 static void con_mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_t event_id, void *event_data);
 static void claim_mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_t event_id, void *event_data);
@@ -66,6 +69,10 @@ static int json_get_string(const char *json, const char *key, char *value);
  *  I edited it a bit to eliminate the dynamic allocation
 */
 static int str_replace(char *dest, int size_of_dest, char *orig, char *rep, char *with);
+
+/// @brief Task that publishes temperature data to AWS IoT Core
+/// @param pvParameters 
+static void temperature_publish_task( void * pvParameters );
 
 static void log_error_if_nonzero(const char *message, int error_code)
 {
@@ -156,6 +163,7 @@ static void mqtt_start(esp_event_handler_t event_handler, char *clientId)
 /*
  * @brief MQTT event handler for sending temperature data
  *
+ * 
  *  This function is called by the MQTT client event loop.
  *
  * @param handler_args user data registered to the event.
@@ -168,11 +176,10 @@ static void con_mqtt_event_handler(void *handler_args, esp_event_base_t base, in
     ESP_LOGD(TAG, "Event dispatched from event loop base=%s, event_id=%ld", base, event_id);
     esp_mqtt_event_handle_t event = event_data;
     esp_mqtt_client_handle_t client = event->client;
-    int msg_id;
 
-    char *thingName =  (char *)handler_args;
-    char temperature_topic[1024];
-    snprintf(temperature_topic, 1024, "device/%s/temperature/data", thingName);
+    // char *thingName =  (char *)handler_args;
+    // char temperature_topic[1024];
+    // snprintf(temperature_topic, 1024, "device/%s/temperature/data", thingName);
 
 
     switch ((esp_mqtt_event_id_t)event_id) {
@@ -180,8 +187,16 @@ static void con_mqtt_event_handler(void *handler_args, esp_event_base_t base, in
         ESP_LOGI(TAG, "MQTT_EVENT_CONNECTED");
 
         // PUBLISH Temperature data
-        msg_id = esp_mqtt_client_publish(client, temperature_topic, "{ \"temperature\": 31}", 0, 0, 0);
-        ESP_LOGI(TAG, "temperature data published successfully, msg_id=%d", msg_id);
+        // msg_id = esp_mqtt_client_publish(client, temperature_topic, "{ \"temperature\": 31}", 0, 0, 0);
+        // ESP_LOGI(TAG, "temperature data published successfully, msg_id=%d", msg_id);
+
+        /// Create temperature task if not created
+        if(xHandle != NULL) {
+            ESP_LOGI(TAG, "TASK ALREADY CREATED.");
+        } else {
+            ESP_LOGI(TAG, "TASK NOT CREATED; CREATING...");
+            xTaskCreate(temperature_publish_task, "temperature_publish_task", 4096, client, 10, &xHandle);
+        }
 
         break;
     case MQTT_EVENT_DISCONNECTED:
@@ -529,4 +544,33 @@ static int str_replace(char *dest, int size_of_dest, char *orig, char *rep, char
     strncpy(dest, result, size_of_dest);
     
     return 0;
+}
+
+#include "esp_wifi.h"
+
+static void temperature_publish_task( void * pvParameters )
+{
+    esp_mqtt_client_handle_t client = (esp_mqtt_client_handle_t)pvParameters;
+    const TickType_t xDelay = 10000 / portTICK_PERIOD_MS;
+    /// Temperature is in celsius
+    int msg_id, temperature = 30, min_temp = 20, max_temp = 32;
+    char temperature_topic[256];
+    char payload[128];
+
+    // // Create topic form thing_name, temperature data will be published to this topic
+    snprintf(temperature_topic, 256, "device/%s/temperature/data", thing_name);
+
+    for( ;; ) {
+        /// Simulate temperature to send variety of temperatures
+        if(temperature >= max_temp)
+            temperature = min_temp;
+        /// Create payload from temperature
+        snprintf(payload, 128, "{ \"temperature\": %d}", temperature);
+        /// Publish temperature with QoS of 0
+        msg_id = esp_mqtt_client_publish(client, temperature_topic, payload, 0, 0, 0);
+        ESP_LOGI(TAG, "temperature data published successfully, msg_id=%d", msg_id);
+        temperature++;
+
+        vTaskDelay( xDelay );
+    }
 }

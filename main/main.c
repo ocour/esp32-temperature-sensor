@@ -37,7 +37,7 @@ void app_main(void)
         return;
     }
 
-    printf("Wifi has been provisioned.\n");
+    printf("Wifi has been provisioned. Connecting to Wi-Fi.\n");
 
     /// TODO: REMOVE COMMENT
     ret = /*ESP_FAIL;*/ wifi_init_sta(ssid, pwd);
