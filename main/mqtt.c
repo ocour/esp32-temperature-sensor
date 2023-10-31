@@ -552,21 +552,21 @@ static void temperature_publish_task( void * pvParameters )
 {
     esp_mqtt_client_handle_t client = (esp_mqtt_client_handle_t)pvParameters;
     const TickType_t xDelay = 10000 / portTICK_PERIOD_MS;
-    /// Temperature is in celsius
+    // Temperature is in celsius
     int msg_id, temperature = 30, min_temp = 20, max_temp = 32;
     char temperature_topic[256];
     char payload[128];
 
-    // // Create topic form thing_name, temperature data will be published to this topic
+    // Create topic form thing_name, temperature data will be published to this topic
     snprintf(temperature_topic, 256, "device/%s/temperature/data", thing_name);
 
     for( ;; ) {
-        /// Simulate temperature to send variety of temperatures
+        // Simulate temperature to send variety of temperatures
         if(temperature >= max_temp)
             temperature = min_temp;
-        /// Create payload from temperature
+        // Create payload from temperature
         snprintf(payload, 128, "{ \"temperature\": %d}", temperature);
-        /// Publish temperature with QoS of 0
+        // Publish temperature with QoS of 0
         msg_id = esp_mqtt_client_publish(client, temperature_topic, payload, 0, 0, 0);
         ESP_LOGI(TAG, "temperature data published successfully, msg_id=%d", msg_id);
         temperature++;
